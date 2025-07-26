@@ -1,17 +1,18 @@
 package native
 
 /*
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
 )
 
-type profileMapper struct {
-}
+type profileMapper struct{}
 
 func newProfileMapper() *profileMapper {
 	return &profileMapper{}
@@ -25,7 +26,8 @@ func convertString(value *C.char) *string {
 		return &result
 	}
 }
-func (m *profileMapper) goProfiles(profileList *C.dxfg_instrument_profile_list) []*events.InstrumentProfile {
+
+func (m *profileMapper) goProfiles(profileList *C.dxfg_instrument_profile2_list_t) []*events.InstrumentProfile {
 	if profileList == nil || profileList.elements == nil || int(profileList.size) == 0 {
 		return nil
 	}
@@ -35,7 +37,7 @@ func (m *profileMapper) goProfiles(profileList *C.dxfg_instrument_profile_list) 
 	elementsSlice := unsafe.Slice(profileList.elements, C.size_t(profileList.size))
 
 	for i, event := range elementsSlice {
-		nativeEvent := (*C.dxfg_instrument_profile_t)(unsafe.Pointer(event))
+		nativeEvent := (*C.dxfg_instrument_profile2_t)(unsafe.Pointer(event))
 		profile := events.NewInstrumentProfile()
 		profile.SetSymbol(convertString(nativeEvent.symbol))
 		profile.SetInstrumentType(convertString(nativeEvent._type))

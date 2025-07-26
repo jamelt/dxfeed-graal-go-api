@@ -1,13 +1,15 @@
 package native
 
 /*
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
 )
 
 type InstrumentProfileReader struct {
@@ -76,11 +78,17 @@ func (r *InstrumentProfileReader) ReadFromFile(address string) ([]*events.Instru
 		return checkCall(func() {
 			addressPtr := C.CString(address)
 			defer C.free(unsafe.Pointer(addressPtr))
-			ptr := C.dxfg_InstrumentProfileReader_readFromFile(thread.ptr,
+
+			var listPtr *C.dxfg_instrument_profile2_list_t
+			C.dxfg_InstrumentProfileReader_readFromFile7(thread.ptr,
 				r.ptr(),
-				addressPtr)
-			resultList = newProfileMapper().goProfiles(ptr)
-			C.dxfg_CList_InstrumentProfile_release(thread.ptr, ptr)
+				addressPtr,
+				&listPtr)
+
+			resultList = newProfileMapper().goProfiles(listPtr)
+			if listPtr != nil {
+				C.dxfg_instrument_profile2_list_free(thread.ptr, listPtr)
+			}
 		})
 	})
 	return resultList, err
@@ -97,13 +105,19 @@ func (r *InstrumentProfileReader) ReadFromFileWithPassword(address string, user 
 			defer C.free(unsafe.Pointer(addressPtr))
 			defer C.free(unsafe.Pointer(userPtr))
 			defer C.free(unsafe.Pointer(passwordPtr))
-			ptr := C.dxfg_InstrumentProfileReader_readFromFile2(thread.ptr,
+
+			var listPtr *C.dxfg_instrument_profile2_list_t
+			C.dxfg_InstrumentProfileReader_readFromFile8(thread.ptr,
 				r.ptr(),
 				addressPtr,
 				userPtr,
-				passwordPtr)
-			resultList = newProfileMapper().goProfiles(ptr)
-			C.dxfg_CList_InstrumentProfile_release(thread.ptr, ptr)
+				passwordPtr,
+				&listPtr)
+
+			resultList = newProfileMapper().goProfiles(listPtr)
+			if listPtr != nil {
+				C.dxfg_instrument_profile2_list_free(thread.ptr, listPtr)
+			}
 		})
 	})
 	return resultList, err

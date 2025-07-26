@@ -13,7 +13,7 @@ import (
 
 func main() {
 	baseUrl := "https://dxfeed.jfrog.io/artifactory/maven/com/dxfeed/graal-native-sdk/%s/graal-native-sdk-%s-%s-%s.zip"
-	version := "1.1.6"
+	version := "2.5.0"
 	archStr := ""
 	osStr := ""
 	switch os := runtime.GOOS; os {
@@ -96,7 +96,7 @@ func Unzip(src, dest string) error {
 		}
 	}()
 
-	os.MkdirAll(dest, 0755)
+	os.MkdirAll(dest, 0o755)
 
 	// Closure to address file descriptors issue with all the deferred .Close() methods
 	extractAndWriteFile := func(f *zip.File) error {

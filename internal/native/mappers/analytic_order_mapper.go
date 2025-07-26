@@ -45,7 +45,7 @@ func (AnalyticOrderMapper) GoEvent(native unsafe.Pointer) interface{} {
 	return o
 }
 
-func (AnalyticOrderMapper) CEvent(event interface{}) unsafe.Pointer {
+func (a AnalyticOrderMapper) CEvent(event interface{}) unsafe.Pointer {
 	orderEvent := event.(*order.AnalyticOrder)
 
 	q := (*C.dxfg_analytic_order_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_analytic_order_t{}))))

@@ -2,7 +2,7 @@ package native
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/graal
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 */
 import "C"
 

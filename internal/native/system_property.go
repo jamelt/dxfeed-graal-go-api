@@ -1,7 +1,7 @@
 package native
 
 /*
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 #include <stdlib.h>
 */
 import "C"

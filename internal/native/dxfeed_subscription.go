@@ -1,7 +1,7 @@
 package native
 
 /*
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 #include <stdlib.h>
 extern void OnEventReceived(graal_isolatethread_t *thread, dxfg_event_type_list *events, void *user_data);
 */

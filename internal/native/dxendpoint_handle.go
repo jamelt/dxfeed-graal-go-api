@@ -1,16 +1,18 @@
 package native
 
 /*
-#include "dxfg_api.h"
+#include "graal/dxfg_api.h"
 #include <stdlib.h>
 extern void OnStateChanged(graal_isolatethread_t *thread, dxfg_endpoint_state_t old_state, dxfg_endpoint_state_t new_state, void *user_data);
 */
 import "C"
+
 import (
 	"errors"
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/common"
 	"sync"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/common"
 )
 
 type DXEndpointHandle struct {
