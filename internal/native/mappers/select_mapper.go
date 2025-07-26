@@ -17,6 +17,7 @@ var (
 	tradeMapper         = TradeMapper{}
 	tradeETHMapper      = TradeETHMapper{}
 	analyticOrderMapper = AnalyticOrderMapper{}
+	greeksMapper        = GreeksMapper{}
 )
 
 // GetMapper returns the appropriate mapper singleton for a given event type
@@ -41,6 +42,8 @@ func SelectMapper(eventType int32) MapperInterface {
 		return tradeETHMapper
 	case C.DXFG_EVENT_ANALYTIC_ORDER:
 		return analyticOrderMapper
+	case C.DXFG_EVENT_GREEKS:
+		return greeksMapper
 	default:
 		return nil
 	}

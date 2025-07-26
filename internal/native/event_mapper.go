@@ -40,7 +40,7 @@ func (m eventMapperUtil) goEvent(event *C.dxfg_event_type_t) interface{} {
 	if mapper != nil {
 		return mapper.GoEvent(unsafe.Pointer(event))
 	} else {
-		panic(fmt.Sprintf("unknown event eventcodes %v", event.clazz))
+		panic(fmt.Sprintf("unknown (or unsupported) eventcode %d", event.clazz))
 	}
 }
 
