@@ -2,15 +2,13 @@ package native
 
 // #include <stdlib.h>
 import "C"
+
 import (
 	"sync"
 	"unsafe"
 )
 
-var (
-	mutex sync.RWMutex
-	store = map[unsafe.Pointer]interface{}{}
-)
+var store sync.Map
 
 func Save(v interface{}) unsafe.Pointer {
 	if v == nil {
@@ -26,9 +24,7 @@ func Save(v interface{}) unsafe.Pointer {
 		panic("can't allocate 'cgo-pointer hack index pointer': ptr == nil")
 	}
 
-	mutex.Lock()
-	store[ptr] = v
-	mutex.Unlock()
+	store.Store(ptr, v)
 
 	return ptr
 }
@@ -38,9 +34,7 @@ func Restore(ptr unsafe.Pointer) (v interface{}) {
 		return nil
 	}
 
-	mutex.RLock()
-	v = store[ptr]
-	mutex.RUnlock()
+	v, _ = store.Load(ptr)
 	return
 }
 
@@ -49,9 +43,7 @@ func Unref(ptr unsafe.Pointer) {
 		return
 	}
 
-	mutex.Lock()
-	delete(store, ptr)
-	mutex.Unlock()
+	store.Delete(ptr)
 
 	C.free(ptr)
 }
