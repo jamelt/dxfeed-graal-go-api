@@ -5,15 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/trade"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/trade"
 )
 
-type TradeETHMapper struct {
-}
+type TradeETHMapper struct{}
 
-func (t TradeETHMapper) GoEvent(native unsafe.Pointer) interface{} {
+func (TradeETHMapper) GoEvent(native unsafe.Pointer) interface{} {
 	tradeNative := (*C.dxfg_trade_eth_t)(native)
 	tradeEvent := trade.NewTradeETH(C.GoString(tradeNative.trade_base.market_event.event_symbol))
 	tradeEvent.SetEventTime(int64(tradeNative.trade_base.market_event.event_time))
@@ -30,7 +31,7 @@ func (t TradeETHMapper) GoEvent(native unsafe.Pointer) interface{} {
 	return tradeEvent
 }
 
-func (t TradeETHMapper) CEvent(event interface{}) unsafe.Pointer {
+func (TradeETHMapper) CEvent(event interface{}) unsafe.Pointer {
 	tradeEvent := event.(*trade.TradeETH)
 	q := (*C.dxfg_trade_eth_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_trade_eth_t{}))))
 	q.trade_base.market_event.event_type.clazz = C.DXFG_EVENT_TRADE_ETH

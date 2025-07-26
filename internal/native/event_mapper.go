@@ -5,23 +5,21 @@ package native
 #include <stdlib.h>
 */
 import "C"
+
 import (
 	"fmt"
+	"unsafe"
+
 	"github.com/dxfeed/dxfeed-graal-go-api/internal/native/mappers"
 	"github.com/dxfeed/dxfeed-graal-go-api/pkg/api/Osub"
 	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
-	"unsafe"
 )
 
-type eventMapper struct {
-	mappers map[int32]mappers.MapperInterface
-}
+type eventMapperUtil int
 
-func newEventMapper() *eventMapper {
-	return &eventMapper{mappers: mappers.AvailableMappers()}
-}
+const eventMapper = eventMapperUtil(0)
 
-func (m *eventMapper) goEvents(eventsList *C.dxfg_event_type_list) []interface{} {
+func (m eventMapperUtil) goEvents(eventsList *C.dxfg_event_type_list) []interface{} {
 	if eventsList == nil || eventsList.elements == nil || int(eventsList.size) == 0 {
 		return nil
 	}
@@ -37,8 +35,8 @@ func (m *eventMapper) goEvents(eventsList *C.dxfg_event_type_list) []interface{}
 	return list
 }
 
-func (m *eventMapper) goEvent(event *C.dxfg_event_type_t) interface{} {
-	mapper := m.mappers[int32(event.clazz)]
+func (m eventMapperUtil) goEvent(event *C.dxfg_event_type_t) interface{} {
+	mapper := mappers.SelectMapper(int32(event.clazz))
 	if mapper != nil {
 		return mapper.GoEvent(unsafe.Pointer(event))
 	} else {
@@ -47,7 +45,7 @@ func (m *eventMapper) goEvent(event *C.dxfg_event_type_t) interface{} {
 }
 
 // TODO add recursive release for symbols
-func (m *eventMapper) cSymbol(symbol any) unsafe.Pointer {
+func (m eventMapperUtil) cSymbol(symbol any) unsafe.Pointer {
 	switch value := symbol.(type) {
 	case string:
 		return unsafe.Pointer(m.cStringSymbol(value))
@@ -62,20 +60,20 @@ func (m *eventMapper) cSymbol(symbol any) unsafe.Pointer {
 	}
 }
 
-func (m *eventMapper) cStringSymbol(str string) *dxfg_symbol_t {
+func (m eventMapperUtil) cStringSymbol(str string) *dxfg_symbol_t {
 	ss := &dxfg_symbol_t{}
 	ss.t = 0
 	ss.symbol = C.CString(str)
 	return ss
 }
 
-func (m *eventMapper) cWildCardSymbol() *dxfg_symbol_t {
+func (m eventMapperUtil) cWildCardSymbol() *dxfg_symbol_t {
 	ss := &dxfg_symbol_t{}
 	ss.t = 2
 	return ss
 }
 
-func (m *eventMapper) cTimeSeriesSymbol(str any, fromTime int64) *dxfg_time_series_subscription_symbol_t {
+func (m eventMapperUtil) cTimeSeriesSymbol(str any, fromTime int64) *dxfg_time_series_subscription_symbol_t {
 	ss := &dxfg_time_series_subscription_symbol_t{}
 	ss.t = 4
 	ss.symbol = (*dxfg_symbol_t)(m.cSymbol(str))
@@ -83,7 +81,7 @@ func (m *eventMapper) cTimeSeriesSymbol(str any, fromTime int64) *dxfg_time_seri
 	return ss
 }
 
-func (m *eventMapper) cIndexedEventSubscriptionSymbol(str any, source events.IndexedEventSourceInterface) *dxfg_indexed_event_subscription_symbol_t {
+func (m eventMapperUtil) cIndexedEventSubscriptionSymbol(str any, source events.IndexedEventSourceInterface) *dxfg_indexed_event_subscription_symbol_t {
 	ss := &dxfg_indexed_event_subscription_symbol_t{}
 	ss.t = 3
 	ss.symbol = (*dxfg_symbol_t)(m.cSymbol(str))

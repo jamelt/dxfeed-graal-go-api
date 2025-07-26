@@ -5,31 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/timeandsale"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/timeandsale"
 )
 
-type TimeAndSaleMapper struct {
-}
+type TimeAndSaleMapper struct{}
 
-func convertString(value *C.char) *string {
-	if value == nil {
-		return nil
-	} else {
-		result := C.GoString(value)
-		return &result
-	}
-}
-
-func CString(str *string) *C.char {
-	if str == nil {
-		return nil
-	}
-	return C.CString(*str)
-}
-
-func (ts TimeAndSaleMapper) CEvent(event interface{}) unsafe.Pointer {
+func (TimeAndSaleMapper) CEvent(event interface{}) unsafe.Pointer {
 	timeAndSale := event.(*timeandsale.TimeAndSale)
 	t := (*C.dxfg_time_and_sale_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_time_and_sale_t{}))))
 	t.market_event.event_type.clazz = C.DXFG_EVENT_TIME_AND_SALE
@@ -50,7 +35,7 @@ func (ts TimeAndSaleMapper) CEvent(event interface{}) unsafe.Pointer {
 	return unsafe.Pointer(t)
 }
 
-func (ts TimeAndSaleMapper) GoEvent(native unsafe.Pointer) interface{} {
+func (TimeAndSaleMapper) GoEvent(native unsafe.Pointer) interface{} {
 	newTimeAndSale := (*C.dxfg_time_and_sale_t)(native)
 	t := timeandsale.NewTimeAndSale(C.GoString(newTimeAndSale.market_event.event_symbol))
 	t.SetEventTime(int64(newTimeAndSale.market_event.event_time))

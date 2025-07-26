@@ -5,15 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/quote"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/quote"
 )
 
-type QuoteMapper struct {
-}
+type QuoteMapper struct{}
 
-func (m QuoteMapper) CEvent(event interface{}) unsafe.Pointer {
+func (QuoteMapper) CEvent(event interface{}) unsafe.Pointer {
 	quoteEvent := event.(*quote.Quote)
 
 	q := (*C.dxfg_quote_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_quote_t{}))))
@@ -33,7 +34,7 @@ func (m QuoteMapper) CEvent(event interface{}) unsafe.Pointer {
 	return unsafe.Pointer(q)
 }
 
-func (m QuoteMapper) GoEvent(native unsafe.Pointer) interface{} {
+func (QuoteMapper) GoEvent(native unsafe.Pointer) interface{} {
 	quoteNative := (*C.dxfg_quote_t)(native)
 	q := quote.NewQuote(C.GoString(quoteNative.market_event.event_symbol))
 	q.SetEventSymbol(C.GoString(quoteNative.market_event.event_symbol))

@@ -5,15 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/candle"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/candle"
 )
 
-type CandleMapper struct {
-}
+type CandleMapper struct{}
 
-func (c CandleMapper) GoEvent(nativeEvent unsafe.Pointer) interface{} {
+func (CandleMapper) GoEvent(nativeEvent unsafe.Pointer) interface{} {
 	candleNative := (*C.dxfg_candle_t)(nativeEvent)
 
 	newCandle := candle.NewCandle(C.GoString(candleNative.event_symbol))
@@ -36,7 +37,7 @@ func (c CandleMapper) GoEvent(nativeEvent unsafe.Pointer) interface{} {
 	return newCandle
 }
 
-func (c CandleMapper) CEvent(event interface{}) unsafe.Pointer {
+func (CandleMapper) CEvent(event interface{}) unsafe.Pointer {
 	candleEvent := event.(*candle.Candle)
 
 	native := (*C.dxfg_candle_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_candle_t{}))))

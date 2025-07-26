@@ -6,10 +6,12 @@ package native
 extern void OnEventReceived(graal_isolatethread_t *thread, dxfg_event_type_list *events, void *user_data);
 */
 import "C"
+
 import (
 	"fmt"
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/common"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/common"
 )
 
 type DXFeedSubscription struct {
@@ -50,7 +52,7 @@ func ConvertString(value *C.char) *string {
 
 //export OnEventReceived
 func OnEventReceived(thread *C.graal_isolatethread_t, eventsList *C.dxfg_event_type_list, userData unsafe.Pointer) {
-	Restore(userData).(common.EventListener).Update(newEventMapper().goEvents(eventsList))
+	Restore(userData).(common.EventListener).Update(eventMapper.goEvents(eventsList))
 }
 
 func (s DXFeedSubscription) AttachListener(listener common.EventListener) error {
@@ -85,7 +87,7 @@ func (s DXFeedSubscription) AddSymbols(symbols ...any) error {
 }
 
 func (s DXFeedSubscription) convertSymbol(symbol any) *C.dxfg_symbol_t {
-	value := newEventMapper().cSymbol(symbol)
+	value := eventMapper.cSymbol(symbol)
 	return (*C.dxfg_symbol_t)(value)
 }
 

@@ -5,15 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/profile"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/profile"
 )
 
-type ProfileMapper struct {
-}
+type ProfileMapper struct{}
 
-func (m ProfileMapper) CEvent(event interface{}) unsafe.Pointer {
+func (ProfileMapper) CEvent(event interface{}) unsafe.Pointer {
 	profile := event.(*profile.Profile)
 	p := (*C.dxfg_profile_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_profile_t{}))))
 	p.market_event.event_type.clazz = C.DXFG_EVENT_PROFILE
@@ -43,7 +44,7 @@ func (m ProfileMapper) CEvent(event interface{}) unsafe.Pointer {
 	return unsafe.Pointer(p)
 }
 
-func (pr ProfileMapper) GoEvent(nativeEvent unsafe.Pointer) interface{} {
+func (ProfileMapper) GoEvent(nativeEvent unsafe.Pointer) interface{} {
 	native := (*C.dxfg_profile_t)(nativeEvent)
 
 	p := profile.NewProfile(C.GoString(native.market_event.event_symbol))

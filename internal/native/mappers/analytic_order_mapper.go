@@ -5,15 +5,16 @@ package mappers
 #include <stdlib.h>
 */
 import "C"
+
 import (
-	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/order"
 	"unsafe"
+
+	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events/order"
 )
 
-type AnalyticOrderMapper struct {
-}
+type AnalyticOrderMapper struct{}
 
-func (a AnalyticOrderMapper) GoEvent(native unsafe.Pointer) interface{} {
+func (AnalyticOrderMapper) GoEvent(native unsafe.Pointer) interface{} {
 	orderNative := (*C.dxfg_analytic_order_t)(native)
 	o := order.NewAnalyticOrder(C.GoString(orderNative.order_base.order_base.market_event.event_symbol))
 	o.SetEventTime(int64(orderNative.order_base.order_base.market_event.event_time))
@@ -44,7 +45,7 @@ func (a AnalyticOrderMapper) GoEvent(native unsafe.Pointer) interface{} {
 	return o
 }
 
-func (a AnalyticOrderMapper) CEvent(event interface{}) unsafe.Pointer {
+func (AnalyticOrderMapper) CEvent(event interface{}) unsafe.Pointer {
 	orderEvent := event.(*order.AnalyticOrder)
 
 	q := (*C.dxfg_analytic_order_t)(C.malloc(C.size_t(unsafe.Sizeof(C.dxfg_analytic_order_t{}))))

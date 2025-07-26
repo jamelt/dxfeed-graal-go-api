@@ -5,11 +5,13 @@ package native
 #include <stdlib.h>
 */
 import "C"
+
 import (
 	"fmt"
+	"unsafe"
+
 	"github.com/dxfeed/dxfeed-graal-go-api/internal/native/mappers"
 	"github.com/dxfeed/dxfeed-graal-go-api/pkg/events"
-	"unsafe"
 )
 
 type CMapper interface {
@@ -26,7 +28,7 @@ func NewListMapper[T CMapper, U comparable](elements []U) *ListMapper[T] {
 	e := (**T)(C.malloc(C.size_t(size) * C.size_t(unsafe.Sizeof((*int)(nil)))))
 	slice := unsafe.Slice(e, C.size_t(size))
 	for i, element := range elements {
-		slice[i] = allocElement[T, U](element, mappers.AvailableMappers())
+		slice[i] = allocElement[T, U](element)
 	}
 
 	return &ListMapper[T]{
@@ -35,16 +37,16 @@ func NewListMapper[T CMapper, U comparable](elements []U) *ListMapper[T] {
 	}
 }
 
-func allocElement[T CMapper, U comparable](element U, mappers map[int32]mappers.MapperInterface) *T {
+func allocElement[T CMapper, U comparable](element U) *T {
 	switch t := any(element).(type) {
 	case int32:
 		return (*T)(C.malloc(C.size_t(unsafe.Sizeof(element))))
 	case events.EventType:
 		// all market events have to implement this interface
-		mapper := mappers[int32(t.Type())]
+		mapper := mappers.SelectMapper(int32(t.Type()))
 		return (*T)(mapper.CEvent(t))
 	default:
-		symbol := newEventMapper().cSymbol(t)
+		symbol := eventMapper.cSymbol(t)
 		if symbol != nil {
 			return (*T)(symbol)
 		} else {
