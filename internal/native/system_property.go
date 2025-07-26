@@ -8,7 +8,7 @@ import "C"
 import "unsafe"
 
 func SetSystemProperty(key, value string) {
-	_ = executeInIsolateThread(func(thread *isolateThread) error {
+	_ = dispatchOnIsolateThread(func(thread *isolateThread) error {
 		keyPtr := C.CString(key)
 		defer C.free(unsafe.Pointer(keyPtr))
 
@@ -22,7 +22,7 @@ func SetSystemProperty(key, value string) {
 
 func GetSystemProperty(key string) string {
 	value := ""
-	_ = executeInIsolateThread(func(thread *isolateThread) error {
+	_ = dispatchOnIsolateThread(func(thread *isolateThread) error {
 		keyPtr := C.CString(key)
 		defer C.free(unsafe.Pointer(keyPtr))
 

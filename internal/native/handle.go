@@ -31,7 +31,7 @@ func (j *JavaHandle) Free() error {
 	if j.ptr == nil {
 		return nil
 	}
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_JavaObjectHandler_release(thread.ptr, (*C.dxfg_java_object_handler)(j.ptr))
 			j.ptr = nil

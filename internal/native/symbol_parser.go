@@ -9,7 +9,7 @@ import "unsafe"
 
 func ParseSymbols(symbols string) ([]any, error) {
 	var result []any
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		symbolsPtr := C.CString(symbols)
 		defer C.free(unsafe.Pointer(symbolsPtr))
 		return checkCall(func() {
@@ -37,7 +37,7 @@ func ParseSymbols(symbols string) ([]any, error) {
 
 func ParseTime(time string) (int64, error) {
 	var result int64
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		timePtr := C.CString(time)
 		defer C.free(unsafe.Pointer(timePtr))
 		return checkCall(func() {

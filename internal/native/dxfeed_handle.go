@@ -17,7 +17,7 @@ func NewDXFeedHandle(ptr *C.dxfg_feed_t) *DXFeedHandle {
 
 func (f *DXFeedHandle) CreateSubscription(eventTypes ...int32) (*DXFeedSubscription, error) {
 	var ptr *C.dxfg_subscription_t
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		list := createEventClazzList(eventTypes...)
 		defer destroyEventClazzList(list)
 		return checkCall(func() {

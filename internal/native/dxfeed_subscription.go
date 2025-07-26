@@ -56,7 +56,7 @@ func OnEventReceived(thread *C.graal_isolatethread_t, eventsList *C.dxfg_event_t
 }
 
 func (s DXFeedSubscription) AttachListener(listener common.EventListener) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		l := C.dxfg_DXFeedEventListener_new(thread.ptr, (*[0]byte)(C.OnEventReceived), Save(listener))
 		C.dxfg_DXFeedSubscription_addEventListener(thread.ptr, s.ptr, l)
 		return nil
@@ -65,7 +65,7 @@ func (s DXFeedSubscription) AttachListener(listener common.EventListener) error 
 }
 
 func (s DXFeedSubscription) AddSymbol(symbol any) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		cSymbol := s.convertSymbol(symbol)
 		if cSymbol != nil {
 			C.dxfg_DXFeedSubscription_addSymbol(thread.ptr, s.ptr, cSymbol)
@@ -78,7 +78,7 @@ func (s DXFeedSubscription) AddSymbol(symbol any) error {
 }
 
 func (s DXFeedSubscription) AddSymbols(symbols ...any) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		l := NewListMapper[C.dxfg_symbol_list, interface{}](symbols)
 		C.dxfg_DXFeedSubscription_addSymbols(thread.ptr, s.ptr, (*C.dxfg_symbol_list)(unsafe.Pointer(l)))
 		return nil
@@ -92,7 +92,7 @@ func (s DXFeedSubscription) convertSymbol(symbol any) *C.dxfg_symbol_t {
 }
 
 func (s DXFeedSubscription) RemoveSymbol(symbol any) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		cSymbol := s.convertSymbol(symbol)
 		if cSymbol != nil {
 			C.dxfg_DXFeedSubscription_removeSymbol(thread.ptr, s.ptr, cSymbol)
@@ -105,7 +105,7 @@ func (s DXFeedSubscription) RemoveSymbol(symbol any) error {
 }
 
 func (s DXFeedSubscription) RemoveSymbols(symbols ...any) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		l := NewListMapper[C.dxfg_symbol_list, interface{}](symbols)
 		C.dxfg_DXFeedSubscription_removeSymbols(thread.ptr, s.ptr, (*C.dxfg_symbol_list)(unsafe.Pointer(l)))
 		return nil
@@ -114,14 +114,14 @@ func (s DXFeedSubscription) RemoveSymbols(symbols ...any) error {
 }
 
 func (s DXFeedSubscription) Clear() {
-	_ = executeInIsolateThread(func(thread *isolateThread) error {
+	_ = dispatchOnIsolateThread(func(thread *isolateThread) error {
 		C.dxfg_DXFeedSubscription_clear(thread.ptr, s.ptr)
 		return nil
 	})
 }
 
 func (s DXFeedSubscription) Close() {
-	_ = executeInIsolateThread(func(thread *isolateThread) error {
+	_ = dispatchOnIsolateThread(func(thread *isolateThread) error {
 		C.dxfg_DXFeedSubscription_close(thread.ptr, s.ptr)
 		return nil
 	})

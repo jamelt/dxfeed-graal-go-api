@@ -25,7 +25,7 @@ func checkIsolateCall(call func() C.int) error {
 }
 
 func getJavaThreadErrorIfExist() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		ptr := C.dxfg_get_and_clear_thread_exception_t(thread.ptr)
 		if ptr == nil {
 			return nil

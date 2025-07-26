@@ -26,7 +26,7 @@ type DXEndpointHandle struct {
 
 func NewDXEndpointHandle(role common.Role) (*DXEndpointHandle, error) {
 	var ptr *C.dxfg_endpoint_t
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			ptr = C.dxfg_DXEndpoint_create2(thread.ptr, (C.dxfg_endpoint_role_t)(role))
 		})
@@ -40,7 +40,7 @@ func NewDXEndpointHandle(role common.Role) (*DXEndpointHandle, error) {
 
 func NewDXEndpointHandleWithProperties(role common.Role, properties map[string]string) (*DXEndpointHandle, error) {
 	var ptr *C.dxfg_endpoint_t
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			builder := C.dxfg_DXEndpoint_newBuilder(thread.ptr)
 			C.dxfg_DXEndpoint_Builder_withRole(thread.ptr, builder, (C.dxfg_endpoint_role_t)(role))
@@ -59,7 +59,7 @@ func NewDXEndpointHandleWithProperties(role common.Role, properties map[string]s
 }
 
 func (e *DXEndpointHandle) Close() error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_close(thread.ptr, e.ptr())
 		})
@@ -68,7 +68,7 @@ func (e *DXEndpointHandle) Close() error {
 }
 
 func (e *DXEndpointHandle) CloseAndAwaitTermination() error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_closeAndAwaitTermination(thread.ptr, e.ptr())
 		})
@@ -77,7 +77,7 @@ func (e *DXEndpointHandle) CloseAndAwaitTermination() error {
 }
 
 func (e *DXEndpointHandle) Connect(address string) error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		addressPtr := C.CString(address)
 		defer C.free(unsafe.Pointer(addressPtr))
 
@@ -88,7 +88,7 @@ func (e *DXEndpointHandle) Connect(address string) error {
 }
 
 func (e *DXEndpointHandle) Reconnect() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_reconnect(thread.ptr, e.ptr())
 		})
@@ -96,7 +96,7 @@ func (e *DXEndpointHandle) Reconnect() error {
 }
 
 func (e *DXEndpointHandle) Disconnect() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_disconnect(thread.ptr, e.ptr())
 		})
@@ -104,7 +104,7 @@ func (e *DXEndpointHandle) Disconnect() error {
 }
 
 func (e *DXEndpointHandle) DisconnectAndClear() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_disconnectAndClear(thread.ptr, e.ptr())
 		})
@@ -112,7 +112,7 @@ func (e *DXEndpointHandle) DisconnectAndClear() error {
 }
 
 func (e *DXEndpointHandle) AwaitProcessed() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_awaitProcessed(thread.ptr, e.ptr())
 		})
@@ -120,7 +120,7 @@ func (e *DXEndpointHandle) AwaitProcessed() error {
 }
 
 func (e *DXEndpointHandle) AwaitNotConnected() error {
-	return executeInIsolateThread(func(thread *isolateThread) error {
+	return dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			C.dxfg_DXEndpoint_awaitNotConnected(thread.ptr, e.ptr())
 		})
@@ -131,7 +131,7 @@ func (e *DXEndpointHandle) GetFeed() (*DXFeedHandle, error) {
 	var err error
 	e.feedOnce.Do(func() {
 		var ptr *C.dxfg_feed_t
-		err = executeInIsolateThread(func(thread *isolateThread) error {
+		err = dispatchOnIsolateThread(func(thread *isolateThread) error {
 			return checkCall(func() {
 				ptr = C.dxfg_DXEndpoint_getFeed(thread.ptr, e.ptr())
 			})
@@ -146,7 +146,7 @@ func (e *DXEndpointHandle) GetPublisher() (*DXPublisherHandle, error) {
 	var err error
 	e.publisherOnce.Do(func() {
 		var ptr *C.dxfg_publisher_t
-		err = executeInIsolateThread(func(thread *isolateThread) error {
+		err = dispatchOnIsolateThread(func(thread *isolateThread) error {
 			return checkCall(func() {
 				ptr = C.dxfg_DXEndpoint_getPublisher(thread.ptr, e.ptr())
 			})
@@ -163,7 +163,7 @@ func OnStateChanged(thread *C.graal_isolatethread_t, old C.dxfg_endpoint_state_t
 }
 
 func (e *DXEndpointHandle) AttachListener(listener common.ConnectionStateListener) error {
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		l := C.dxfg_PropertyChangeListener_new(thread.ptr, (*[0]byte)(C.OnStateChanged), Save(listener))
 		C.dxfg_DXEndpoint_addStateChangeListener(thread.ptr, e.ptr(), l)
 		return nil

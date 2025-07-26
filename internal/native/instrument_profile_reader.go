@@ -18,7 +18,7 @@ type InstrumentProfileReader struct {
 
 func NewInstrumentProfileReader() (*InstrumentProfileReader, error) {
 	var ptr *C.dxfg_instrument_profile_reader_t
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			ptr = C.dxfg_InstrumentProfileReader_new(thread.ptr)
 		})
@@ -31,7 +31,7 @@ func NewInstrumentProfileReader() (*InstrumentProfileReader, error) {
 
 func ResolveSourceURL(address string) (*string, error) {
 	var result *string
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			addressPtr := C.CString(address)
 			defer C.free(unsafe.Pointer(addressPtr))
@@ -53,7 +53,7 @@ func (r *InstrumentProfileReader) Close() error {
 
 func (r *InstrumentProfileReader) GetLastModified() (int64, error) {
 	var result int64
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			result = int64(C.dxfg_InstrumentProfileReader_getLastModified(thread.ptr, r.ptr()))
 		})
@@ -63,7 +63,7 @@ func (r *InstrumentProfileReader) GetLastModified() (int64, error) {
 
 func (r *InstrumentProfileReader) WasComplete() (bool, error) {
 	var result bool
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			result = int32(C.dxfg_InstrumentProfileReader_wasComplete(thread.ptr, r.ptr())) == 1
 		})
@@ -74,7 +74,7 @@ func (r *InstrumentProfileReader) WasComplete() (bool, error) {
 func (r *InstrumentProfileReader) ReadFromFile(address string) ([]*events.InstrumentProfile, error) {
 	var resultList []*events.InstrumentProfile
 
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			addressPtr := C.CString(address)
 			defer C.free(unsafe.Pointer(addressPtr))
@@ -97,7 +97,7 @@ func (r *InstrumentProfileReader) ReadFromFile(address string) ([]*events.Instru
 func (r *InstrumentProfileReader) ReadFromFileWithPassword(address string, user string, password string) ([]*events.InstrumentProfile, error) {
 	var resultList []*events.InstrumentProfile
 
-	err := executeInIsolateThread(func(thread *isolateThread) error {
+	err := dispatchOnIsolateThread(func(thread *isolateThread) error {
 		return checkCall(func() {
 			addressPtr := C.CString(address)
 			userPtr := C.CString(user)
